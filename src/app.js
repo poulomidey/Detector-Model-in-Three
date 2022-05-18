@@ -34,8 +34,8 @@ for (let i = 0; i < 24; i++) {
 
 scene.add(board);
 
-camera.position.set(200,200,200);
-camera.lookAt(0,0,0);
+camera.position.set(200, 200, 200);
+camera.lookAt(0, 0, 0);
 controls.update();
 
 function animate() {
