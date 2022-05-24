@@ -43,7 +43,7 @@ function create_neutron_wall(scene, neutron_wall, bar_num, x_dist, y_dist, z_dis
     neutron_wall.position.z -= dist_bw_neutron_veto;
 }
 
-create_neutron_wall(scene, neutron_wall, 24, 193.675, 8.255, 6.985, .3175, 100); //DIST BW N-WALL AND V-WALL NOT CORRECT
+create_neutron_wall(scene, neutron_wall, 24, 193.675, 8.255, 6.985, .3175, 61.085); //DOUBLE CHECK DIST BW N WALL AND V WALL. IS N WALL TILTED?
 
 //veto wall
 const veto_wall = new THREE.Group();
