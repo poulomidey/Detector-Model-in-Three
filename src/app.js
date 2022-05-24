@@ -11,9 +11,10 @@ const scene = new THREE.Scene();
 
 const controls = new OrbitControls(camera, renderer.domElement);
 
+const v_wall_z_dist = 1.0008;
 const neutron_wall = new THREE.Group();
 
-function create_neutron_wall(scene, neutron_wall, bar_num, x_dist, y_dist, z_dist, spacing, dist_bw_neutron_veto)
+function create_neutron_wall(scene, neutron_wall, bar_num, x_dist, y_dist, z_dist, spacing, dist_bw_neutron_veto, v_wall_z_dist)
 {
     for (let i = 0; i < bar_num; i++) {
         const geometry = new THREE.BoxGeometry(x_dist, y_dist, z_dist);
@@ -40,10 +41,10 @@ function create_neutron_wall(scene, neutron_wall, bar_num, x_dist, y_dist, z_dis
     }
     
     scene.add(neutron_wall);
-    neutron_wall.position.z -= dist_bw_neutron_veto;
+    neutron_wall.position.z -= dist_bw_neutron_veto + (2*v_wall_z_dist + .3)/2;
 }
 
-create_neutron_wall(scene, neutron_wall, 24, 193.675, 8.255, 6.985, .3175, 61.085); //DOUBLE CHECK DIST BW N WALL AND V WALL. IS N WALL TILTED?
+create_neutron_wall(scene, neutron_wall, 24, 193.675, 8.255, 6.985, .3175, 61.085, v_wall_z_dist); //DOUBLE CHECK DIST BW N WALL AND V WALL. IS N WALL TILTED?
 
 //veto wall
 const veto_wall = new THREE.Group();
@@ -81,7 +82,7 @@ function create_veto_wall(scene, veto_wall, bar_num, x_dist, y_dist, z_dist, x_s
     scene.add(veto_wall);
 }
 
-create_veto_wall(scene, veto_wall, 23, 9.398, 227.2362, 1.0008, .3, .15);
+create_veto_wall(scene, veto_wall, 23, 9.398, 227.2362, v_wall_z_dist, .3, .15);
 
 const axesHelper = new THREE.AxesHelper( 600 );
 scene.add( axesHelper );
