@@ -1,6 +1,6 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
 
-export function create_neutron_wall(scene, neutron_wall, bar_num, x_dist, y_dist, z_dist, spacing, dist_bw_neutron_veto, v_wall_z_dist)
+export function create_neutron_wall(scene, neutron_wall, bar_num, x_dist, y_dist, z_dist, spacing)
 {
     for (let i = 0; i < bar_num; i++) {
         const geometry = new THREE.BoxGeometry(x_dist, y_dist, z_dist);
@@ -27,6 +27,6 @@ export function create_neutron_wall(scene, neutron_wall, bar_num, x_dist, y_dist
     }
     
     scene.add(neutron_wall);
-    neutron_wall.position.z -= dist_bw_neutron_veto + (2*v_wall_z_dist + .3)/2;
+    // neutron_wall.position.z -= dist_bw_neutron_veto + (2*v_wall_z_dist + .3)/2;
     neutron_wall.position.y += y_dist/2;
 }
