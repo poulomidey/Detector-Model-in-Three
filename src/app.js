@@ -15,8 +15,6 @@ const scene = new THREE.Scene();
 
 const controls = new OrbitControls(camera, renderer.domElement);
 
-
-
 // const v_wall_z_dist = 1.0008;
 // const dist_bw_neutron_veto = 61.085; //DOUBLE CHECK DIST BW N WALL AND V WALL. IS N WALL TILTED?
 
@@ -43,6 +41,7 @@ const size = 600;
 const divisions = 50;
 const gridHelper = new THREE.GridHelper( size, divisions );
 scene.add( gridHelper );
+
 
 camera.position.set(200, 200, 200);
 camera.lookAt(0, 0, 0);
