@@ -31,7 +31,7 @@ create_veto_wall(scene, veto_wall, 23, 9.398, 227.2362, 1.0008, .3, .15);
 // const axesHelper = new THREE.AxesHelper( 600 );
 // scene.add( axesHelper );
 
-create_microball(scene);
+create_microball(scene); //make microball group in future and add rings to microball
 
 neutron_wall.position.z -= 200;
 veto_wall.position.z -= 300;

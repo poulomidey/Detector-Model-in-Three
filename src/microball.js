@@ -80,7 +80,7 @@ function create_ring(ring, scene, ringnum, n, theta, x_pos, ay, az, cy, cz, yshi
       // scene.add(hexagon1);
       // scene.add(hexagon2);
   }
-  scene.add(ring);
+  scene.add(ring); //make microball group in future and add rings to microball
 }
 
 export function create_microball(scene)
