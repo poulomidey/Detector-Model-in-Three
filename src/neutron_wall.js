@@ -14,7 +14,7 @@ export function create_neutron_wall(scene, neutron_wall, bar_num, x_dist, y_dist
                 color: "hsl(228, 100%, 50%)",
             };
         }
-        let material = new THREE.MeshBasicMaterial(materialProperties);
+        let material = new THREE.MeshLambertMaterial(materialProperties);
         const bar = new THREE.Mesh(geometry, material);
         bar.position.x += x_dist/2;
     

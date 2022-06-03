@@ -17,7 +17,7 @@ export function create_veto_wall(scene, veto_wall, bar_num, x_dist, y_dist, z_di
                 color: "hsl(320, 0%, 49%)",
             };
         }
-        let material = new THREE.MeshBasicMaterial(materialProperties);
+        let material = new THREE.MeshLambertMaterial(materialProperties);
         const bar = new THREE.Mesh(geometry, material);
         bar.position.y += y_dist/2;
         bar.position.z += zigzag;
