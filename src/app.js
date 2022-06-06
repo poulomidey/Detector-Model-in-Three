@@ -4,12 +4,16 @@ import { OrbitControls } from 'https://threejsfundamentals.org/threejs/resources
 import {create_neutron_wall} from "./neutron_wall.js";
 import {create_veto_wall} from "./veto_wall.js";
 import {create_microball} from "./microball.js";
+import { VRButton } from '../VRButton.js';
 
 let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+
+document.body.appendChild( VRButton.createButton( renderer ) );
+renderer.xr.enabled = true;
 
 const scene = new THREE.Scene();
 // scene.background = new THREE.Color( 0xffffff );
@@ -26,6 +30,13 @@ scene.fog = new THREE.FogExp2(0x000000, .001);
 const controls = new OrbitControls(camera, renderer.domElement);
 // const controls = new FlyControls(camera, renderer.domElement); //flycontrols
 // controls.dragToLook = true; //flycontrols
+
+camera.position.set(200, 200, 200);
+camera.lookAt(0, 0, 0);
+controls.update();
+
+// const cameraGroup = new THREE.Group();
+// cameraGroup.position.set(200,0,0);  // Set the initial VR Headset Position.
 
 // const v_wall_z_dist = 1.0008;
 // const dist_bw_neutron_veto = 61.085; //DOUBLE CHECK DIST BW N WALL AND V WALL. IS N WALL TILTED?
@@ -52,13 +63,10 @@ const gridHelper = new THREE.GridHelper( size, divisions );
 scene.add( gridHelper );
 
 
-camera.position.set(200, 200, 200);
-// camera.position.x = 100;
-camera.lookAt(0, 0, 0);
-controls.update();
+
 
 function animate() {
-    requestAnimationFrame(animate);
+    renderer.setAnimationLoop(animate);
     // controls.update(.05); //flycontrols
     renderer.render(scene, camera);
 };
