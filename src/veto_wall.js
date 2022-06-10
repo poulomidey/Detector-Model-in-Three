@@ -30,5 +30,6 @@ export function create_veto_wall(scene, veto_wall, bar_num, x_dist, y_dist, z_di
     
     }
     veto_wall.position.x -= x_dist/2;
+    // veto_wall.geometry.x = x_dist/2;
     scene.add(veto_wall);
 }
