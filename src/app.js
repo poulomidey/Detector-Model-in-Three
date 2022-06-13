@@ -2,7 +2,7 @@ import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threej
 import { OrbitControls } from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
 // import {FlyControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/FlyControls.js';
 import { VRButton } from '../VRButton.js';
-import { AnimationButton } from './test.js';
+// import { AnimationButton } from './button.js';
 import {create_neutron_wall} from "./neutron_wall.js";
 import {create_veto_wall} from "./veto_wall.js";
 import {create_microball} from "./microball.js";
