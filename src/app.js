@@ -1,14 +1,14 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
 import { OrbitControls } from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
 // import {FlyControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/FlyControls.js';
-// import * as TWEEN from 'https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js';
 import { VRButton } from '../VRButton.js';
-// import { AnimationButton } from './test.js';
+import { AnimationButton } from './test.js';
 import {create_neutron_wall} from "./neutron_wall.js";
 import {create_veto_wall} from "./veto_wall.js";
 import {create_microball} from "./microball.js";
 import {setup} from "./setup.js";
 import {rays} from "./ray_animation.js";
+import { TWEEN } from 'https://unpkg.com/three@0.139.0/examples/jsm/libs/tween.module.min.js';
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
 
@@ -55,9 +55,11 @@ const veto_wall = new THREE.Group();
 create_veto_wall(scene, veto_wall, 23, 9.398, 227.2362, 1.0008, .3, .15);
 
 const microball = new THREE.Group();
+//[], [[3,3,4,5,6],[4,4,5,6],[5,4,5,6]]: instead of removing the traps, try and make them a lower opacity
 create_microball(scene, microball); //The first entry in the nested list for traps_to_remove is the ring, the rest are the crystals to remove within the ring. The order of the traps within a ring must be listed in increasing order (maybe later can sort before removing)
 
-// ray animations, move this into a separate file later
+// setup(scene, camera, controls, veto_wall);
+
 const vwboundingBox = new THREE.Box3().setFromObject(veto_wall);
 let vwdimensions = new THREE.Vector3();
 vwboundingBox.getSize(vwdimensions);
@@ -78,18 +80,19 @@ neutron_wall.rotateY(-1*(Math.PI/2 - rot));
 
 //document.getElementById("AnimationButton").addEventListener("click", rays(scene, veto_wall, vwdimensions));
 // document.getElementById("AnimationButton").onclick = rays(scene, veto_wall, vwdimensions);
-rays(scene, veto_wall, vwdimensions);
+const raygroup = new THREE.Group();
+rays(scene, raygroup, veto_wall, vwdimensions, rot);
 
-// export function test1_function()
-// {
-//     console.log("hello");
-// }
+// microball.children[1].children[1].material.transparent = true;
+// microball.children[1].children[1].material.opacity = 0;
+// microball.children[1].children[1].material.color = 0x00F844;
 
 function animate() {
     // TWEEN.update();
     // requestAnimationFrame(animate);
     renderer.render(scene, camera);
     renderer.setAnimationLoop(animate);
+    TWEEN.update();
     // controls.update(.05); //flycontrols
     // microball.rotateX(.01);
     // microball.position.set(microball.position.x+=.1, 0,0); //can make object follow parametric curve this way

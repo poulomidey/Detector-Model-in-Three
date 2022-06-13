@@ -26,6 +26,7 @@ function create_ring(ring, microball, n, theta, x_pos, ay, az, cy, cz, yshift, y
       let geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
       const material = new THREE.MeshLambertMaterial( { color: "hsl(275, 100%, 48%)" } );
       let trap = new THREE.Mesh(geometry, material);
+      trap.material.transparent = true;
 
       trap.geometry.rotateY(Math.PI/2);
       trap.position.y = ydist/2;
@@ -73,12 +74,14 @@ export function create_microball(scene, microball, rings_to_remove = [], traps_t
 
   rings_to_remove.forEach(ring => {
     microball.remove(microball.children[ring - 1])
+    // microball.children[ring - 1].opacity = .25;
   });
 
   traps_to_remove.forEach(row => {
       for(let i = row.length - 1; i > 0; i--)
       {
           microball.children[row[0] - 1].remove(microball.children[row[0] - 1].children[row[i] - 1]);
+          // microball.children[row[0] - 1].children[row[i] - 1].opacity = 0;
       }
   });
 

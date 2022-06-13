@@ -17,11 +17,13 @@ export function setup(scene, camera, controls)
 
     //camera initial setup
     camera.position.set(-200, 200, 200);
+    // camera.position.set(600,200,0);
     camera.lookAt(0, 0, 0);
+    // camera.lookAt(veto_wall.position.x, veto_wall.position.y, veto_wall.position.z);
     controls.update();
 
     //grid
-    const size = 600;
+    const size = 900;
     const divisions = 50;
     const gridHelper = new THREE.GridHelper( size, divisions );
     scene.add( gridHelper );
