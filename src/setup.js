@@ -1,6 +1,6 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
 
-export function setup(scene, camera, controls)
+export function setup(scene, camera, renderer,controls)
 {
     
     //lighting and fog
@@ -31,4 +31,20 @@ export function setup(scene, camera, controls)
     //axis
     // const axesHelper = new THREE.AxesHelper( 600 );
     // scene.add( axesHelper );
+
+    const cameraGroup = new THREE.Group();
+    // cameraGroup.position.set(150,50,-150);  // Set the initial VR Headset Position.
+    cameraGroup.position.set(-150, 50, -100) //vr for 
+    renderer.xr.addEventListener('sessionstart', function() {
+        scene.add(cameraGroup);
+        cameraGroup.add(camera);
+    });
+    renderer.xr.addEventListener('sessionend', function() {
+        scene.remove(cameraGroup);
+        cameraGroup.remove(camera);
+        camera.position.set(-200,200,200);
+        camera.lookAt(0,0,0);
+        controls.update();
+    });
+
 }

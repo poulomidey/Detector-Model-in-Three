@@ -26,12 +26,13 @@ const controls = new OrbitControls(camera, renderer.domElement);
 // controls.dragToLook = true; //flycontrols
 
 const scene = new THREE.Scene();
-setup(scene, camera, controls);
+setup(scene, camera, renderer, controls);
 
 
 
 const cameraGroup = new THREE.Group();
 cameraGroup.position.set(150,50,-150);  // Set the initial VR Headset Position.
+cameraGroup.position.set(-150, 50, -100) //vr for 
 renderer.xr.addEventListener('sessionstart', function() {
     scene.add(cameraGroup);
     cameraGroup.add(camera);
@@ -68,6 +69,9 @@ const nboundingBox = new THREE.Box3().setFromObject(neutron_wall);
 let ndimensions = new THREE.Vector3();
 nboundingBox.getSize(ndimensions);
 
+// const helper = new THREE.Box3Helper( nboundingBox, 0xffff00 );
+// scene.add( helper );
+
 const rot = .6871;
 const vwdist = 393.3;
 const ndist = 441.6;
@@ -75,17 +79,27 @@ const ndist = 441.6;
 veto_wall.position.set(vwdist * Math.cos(rot) - .5 * vwdimensions.x * Math.sin(rot), 0, -1 * (vwdist * Math.sin(rot) + .5 * vwdimensions.x * Math.cos(rot)))
 veto_wall.rotateY(-1*(Math.PI/2 - rot));
 
-neutron_wall.position.set(ndist * Math.cos(rot) - .5 * ndimensions.x * Math.sin(rot), 0, -1 * (ndist * Math.sin(rot) + .5 * ndimensions.x * Math.cos(rot)))
+neutron_wall.position.set(ndist * Math.cos(rot) - .5 * ndimensions.x * Math.sin(rot), neutron_wall.position.y, -1 * (ndist * Math.sin(rot) + .5 * ndimensions.x * Math.cos(rot)))
 neutron_wall.rotateY(-1*(Math.PI/2 - rot));
+// neutron_wall.position.z += 200;
+// neutron_wall.position.x += ndist * Math.cos(rot) - .5 * ndimensions.x * Math.sin(rot);
+// neutron_wall.position.z += -1 * (ndist * Math.sin(rot) + .5 * ndimensions.x * Math.cos(rot));
+// const world = new THREE.Vector3;
+// neutron_wall.getWorldPosition(world);
+// console.log(world);
+
+// neutron_wall.updateMatrixWorld();
+// console.log(neutron_wall.position);
 
 //document.getElementById("AnimationButton").addEventListener("click", rays(scene, veto_wall, vwdimensions));
 // document.getElementById("AnimationButton").onclick = rays(scene, veto_wall, vwdimensions);
 const raygroup = new THREE.Group();
-rays(scene, raygroup, veto_wall, vwdimensions, rot);
+rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndimensions, rot);
 
 // microball.children[1].children[1].material.transparent = true;
 // microball.children[1].children[1].material.opacity = 0;
 // microball.children[1].children[1].material.color = 0x00F844;
+
 
 function animate() {
     // TWEEN.update();
