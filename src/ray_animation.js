@@ -1,5 +1,4 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
-// import { Raycaster } from 'three';
 // import { TWEEN } from 'https://unpkg.com/three@0.139.0/examples/jsm/libs/tween.module.min.js';
 
 export function rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndimensions, rot)
@@ -9,6 +8,7 @@ export function rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndi
     // const cube = new THREE.Mesh( new THREE.BoxGeometry(300,300,5), new THREE.MeshBasicMaterial({color : 0xffffff}));
     // scene.add(cube);
     // cube.position.set(100,0,-100);
+    const targetAndTime = [];
     for(let i = 0; i < 25; i++)
     {
         const geometry = new THREE.CylinderGeometry(.75,.75,50,32);
@@ -36,6 +36,8 @@ export function rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndi
         ray.lookAt(target);
 
         raygroup.add(ray);
+        // scene.add(ray);
+        // targetAndTime.push([target, time]);
 
         const sphere = new THREE.Mesh( new THREE.SphereGeometry(7, 32, 16) , new THREE.MeshBasicMaterial({color : 0xffff00 }));
         sphere.material.transparent = true; //can try messing with the emissiveness property and see if that makes it look better, but if it doesn't then you can just switch back tot he basic material
@@ -43,9 +45,6 @@ export function rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndi
         sphere.position.set(x_ray_pos, y_ray_pos, z_ray_pos);
         raygroup.add(sphere);
 
-        // const sphere_time = (50 * time)/Math.sqrt(x_ray_pos**2 + y_ray_pos**2 + z_ray_pos**2);
-
-        // const xv = 510.25/(.8205 - z_ray_pos/x_ray_pos);
         const xv = 620.1/(1.219 - z_ray_pos/x_ray_pos);
         const zv = z_ray_pos * (xv/x_ray_pos);
         const yv = y_ray_pos * (xv/x_ray_pos);
@@ -65,7 +64,6 @@ export function rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndi
         createjs.Tween.get(spherev.material, {loop: true}).wait(veto_time - 500).to({opacity : 1}, 0).to({opacity:0}, 500).wait(time - veto_time);
         createjs.Tween.get(sphere.material, {loop: true}).wait(time - 500).to({opacity : 1}, 0).to({opacity:0}, 500);
         createjs.Tween.get(ray.position, {loop: true}).to({x: x_ray_pos, y: y_ray_pos, z: z_ray_pos}, time);
-
         
         // const raycaster = new THREE.Raycaster(new THREE.Vector3(0,0,0), target.clone().normalize());
         
@@ -102,4 +100,5 @@ export function rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndi
     
     }
     scene.add(raygroup);
+    // return targetAndTime;
 }
