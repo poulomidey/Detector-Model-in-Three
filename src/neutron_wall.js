@@ -28,5 +28,6 @@ export function create_neutron_wall(scene, neutron_wall, bar_num, x_dist, y_dist
     
     scene.add(neutron_wall);
     // neutron_wall.position.z -= dist_bw_neutron_veto + (2*v_wall_z_dist + .3)/2;
+
     neutron_wall.position.y += y_dist/2;
 }

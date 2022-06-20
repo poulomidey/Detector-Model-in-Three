@@ -1,8 +1,26 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
+import { VRButton } from '../VRButton.js';
+import { OrbitControls } from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
 
-export function setup(scene, camera, controls)
+export function setup()
 {
-    
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    document.body.appendChild( VRButton.createButton( renderer ) );
+    renderer.xr.enabled = true;
+
+    // document.body.appendChild( AnimationButton.createButton(renderer));
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    // const controls = new FlyControls(camera, renderer.domElement); //flycontrols
+    // controls.dragToLook = true; //flycontrols
+
+    const scene = new THREE.Scene();
+
     //lighting and fog
     // scene.background = new THREE.Color( 0xffffff );
     const directionalLight = new THREE.DirectionalLight( 0xffffff, .5);
@@ -31,4 +49,21 @@ export function setup(scene, camera, controls)
     //axis
     // const axesHelper = new THREE.AxesHelper( 600 );
     // scene.add( axesHelper );
+
+    const cameraGroup = new THREE.Group();
+    // cameraGroup.position.set(150,50,-150);  // Set the initial VR Headset Position.
+    cameraGroup.position.set(-150, 50, -100) //vr for 
+    renderer.xr.addEventListener('sessionstart', function() {
+        scene.add(cameraGroup);
+        cameraGroup.add(camera);
+    });
+    renderer.xr.addEventListener('sessionend', function() {
+        scene.remove(cameraGroup);
+        cameraGroup.remove(camera);
+        camera.position.set(-200,200,200);
+        camera.lookAt(0,0,0);
+        controls.update();
+    });
+
+    return {scene, camera, renderer, controls};
 }
