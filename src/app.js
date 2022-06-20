@@ -5,6 +5,7 @@ import {create_veto_wall} from "./veto_wall.js";
 import {create_microball} from "./microball.js";
 import {setup} from "./setup.js";
 import {rays} from "./ray_animation.js";
+import { TWEEN } from 'https://unpkg.com/three@0.139.0/examples/jsm/libs/tween.module.min.js';
 
 let {scene, camera, renderer, controls} = setup();
 
@@ -51,6 +52,7 @@ neutron_wall.rotateY(-1*(Math.PI/2 - rot));
 // neutron_wall.updateMatrixWorld();
 // console.log(neutron_wall.position);
 
+
 const raygroup = new THREE.Group();
 // let targetAndTime = rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndimensions, rot);
 rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndimensions, rot);
@@ -59,7 +61,6 @@ const origin = new THREE.Vector3(0,0,0);
 // microball.children[1].children[1].material.transparent = true;
 // microball.children[1].children[1].material.opacity = 0;
 // microball.children[1].children[1].material.color = 0x00F844;
-
 
 function animate() {
     // requestAnimationFrame(animate);
@@ -79,7 +80,6 @@ function animate() {
     // });
     renderer.render(scene, camera);
     renderer.setAnimationLoop(animate);
-
     // controls.update(.05); //flycontrols
 };
 

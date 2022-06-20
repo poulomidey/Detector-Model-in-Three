@@ -9,6 +9,7 @@ export function rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndi
     // scene.add(cube);
     // cube.position.set(100,0,-100);
     const targetAndTime = [];
+
     for(let i = 0; i < 25; i++)
     {
         const geometry = new THREE.CylinderGeometry(.75,.75,50,32);
@@ -27,6 +28,7 @@ export function rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndi
 
         //neutron wall version
         ray.geometry.rotateX(Math.PI/2);
+      
         const xdiff = Math.random() * ndimensions.x;
         const x_ray_pos = neutron_wall.position.x + xdiff*Math.cos(Math.PI/2 - rot);
         const y_ray_pos = Math.random() * ndimensions.y;
