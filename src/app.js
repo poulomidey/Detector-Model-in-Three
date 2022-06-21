@@ -84,7 +84,7 @@ function animate() {
     targetAndTime.forEach(unit => { 
         const raycaster = new THREE.Raycaster(origin, unit[0].clone().normalize());
         const intersects = raycaster.intersectObjects([cubevw, cuben]);
-        console.log(intersects);
+        // console.log(intersects);
         intersects.forEach(intersection => {
             const sp = new THREE.Mesh( new THREE.SphereGeometry(7, 32, 16) , new THREE.MeshBasicMaterial({color : 0xffff00 }));
             sp.position.set(intersection.point.x, intersection.point.y, intersection.point.z);
