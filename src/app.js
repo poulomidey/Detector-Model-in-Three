@@ -52,31 +52,48 @@ neutron_wall.rotateY(-1*(Math.PI/2 - rot));
 // console.log(neutron_wall.position);
 
 const raygroup = new THREE.Group();
-// let targetAndTime = rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndimensions, rot);
-rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndimensions, rot);
+let targetAndTime = rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndimensions, rot);
+// rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndimensions, rot);
 const origin = new THREE.Vector3(0,0,0);
+console.log(targetAndTime);
+
+const cubevw = new THREE.Mesh( new THREE.BoxGeometry(vwdimensions.x, vwdimensions.y, vwdimensions.z), new THREE.MeshBasicMaterial({color : 0xffffff}));
+scene.add(cubevw);
+cubevw.rotateY(-1*(Math.PI/2 - rot));
+cubevw.position.set(veto_wall.position.x + (vwdimensions.x/2)*Math.sin(rot), veto_wall.position.y + vwdimensions.y/2, veto_wall.position.z + (vwdimensions.x/2)*Math.cos(rot));
+cubevw.material.transparent = true;
+cubevw.material.opacity = 0;
+
+const cuben = new THREE.Mesh( new THREE.BoxGeometry(ndimensions.x, ndimensions.y, ndimensions.z), new THREE.MeshBasicMaterial({color : 0xffffff}));
+scene.add(cuben);
+cuben.rotateY(-1*(Math.PI/2 - rot));
+cuben.position.set(neutron_wall.position.x + (ndimensions.x/2)*Math.sin(rot), neutron_wall.position.y + ndimensions.y/2, neutron_wall.position.z + (ndimensions.x/2)*Math.cos(rot));
+cuben.material.transparent = true;
+cuben.material.opacity = 0;
 
 // microball.children[1].children[1].material.transparent = true;
 // microball.children[1].children[1].material.opacity = 0;
 // microball.children[1].children[1].material.color = 0x00F844;
 
+// const temp = new THREE.Vector3(0,5,-5);
+const temp = new THREE.Vector3(veto_wall.position.x + 10, veto_wall.position.y + 10, veto_wall.position.z);
 
 function animate() {
     // requestAnimationFrame(animate);
 
-    // targetAndTime.forEach(unit => { 
-    //     const raycaster = new THREE.Raycaster(origin, unit[0].clone().normalize());
-    //     const intersects = raycaster.intersectObjects([veto_wall, neutron_wall]);
-    //     // console.log(intersects);
-    //     intersects.forEach(intersection => {
-    //         const sp = new THREE.Mesh( new THREE.SphereGeometry(7, 32, 16) , new THREE.MeshBasicMaterial({color : 0xffff00 }));
-    //         sp.position.set(intersection.point.x, intersection.point.y, intersection.point.z);
-    //         // console.log(intersection.point.x, intersection.point.y, intersection.point.z);
-    //         scene.add(sp);
+    targetAndTime.forEach(unit => { 
+        const raycaster = new THREE.Raycaster(origin, unit[0].clone().normalize());
+        const intersects = raycaster.intersectObjects([cubevw, cuben]);
+        console.log(intersects);
+        intersects.forEach(intersection => {
+            const sp = new THREE.Mesh( new THREE.SphereGeometry(7, 32, 16) , new THREE.MeshBasicMaterial({color : 0xffff00 }));
+            sp.position.set(intersection.point.x, intersection.point.y, intersection.point.z);
+            // console.log(intersection.point.x, intersection.point.y, intersection.point.z);
+            scene.add(sp);
 
-    //         // intersection.object.material.color.set( 0xff0000 );
-    //     });
-    // });
+            // intersection.object.material.color.set( 0xff0000 );
+        });
+    });
     renderer.render(scene, camera);
     renderer.setAnimationLoop(animate);
 

@@ -37,7 +37,7 @@ export function rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndi
 
         raygroup.add(ray);
         // scene.add(ray);
-        // targetAndTime.push([target, time]);
+        targetAndTime.push([target, time]);
 
         const sphere = new THREE.Mesh( new THREE.SphereGeometry(7, 32, 16) , new THREE.MeshBasicMaterial({color : 0xffff00 }));
         sphere.material.transparent = true; //can try messing with the emissiveness property and see if that makes it look better, but if it doesn't then you can just switch back tot he basic material
@@ -61,8 +61,8 @@ export function rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndi
         spherev.position.set(xv, yv, zv);
         raygroup.add(spherev);
         
-        createjs.Tween.get(spherev.material, {loop: true}).wait(veto_time - 500).to({opacity : 1}, 0).to({opacity:0}, 500).wait(time - veto_time);
-        createjs.Tween.get(sphere.material, {loop: true}).wait(time - 500).to({opacity : 1}, 0).to({opacity:0}, 500);
+        // createjs.Tween.get(spherev.material, {loop: true}).wait(veto_time - 500).to({opacity : 1}, 0).to({opacity:0}, 500).wait(time - veto_time);
+        // createjs.Tween.get(sphere.material, {loop: true}).wait(time - 500).to({opacity : 1}, 0).to({opacity:0}, 500);
         createjs.Tween.get(ray.position, {loop: true}).to({x: x_ray_pos, y: y_ray_pos, z: z_ray_pos}, time);
         
         // const raycaster = new THREE.Raycaster(new THREE.Vector3(0,0,0), target.clone().normalize());
@@ -100,5 +100,5 @@ export function rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndi
     
     }
     scene.add(raygroup);
-    // return targetAndTime;
+    return targetAndTime;
 }
