@@ -1,104 +1,84 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
-// import { TWEEN } from 'https://unpkg.com/three@0.139.0/examples/jsm/libs/tween.module.min.js';
 
-export function rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndimensions, rot)
+function create_ray(veto_wall, neutron_wall, vwdimensions, ndimensions, rot)
 {
-    const objects = veto_wall.children.concat(neutron_wall.children); //when you get this to work, move it out of the for loop
+    const geometry = new THREE.CylinderGeometry(.75,.75,50,32);
+    const material = new THREE.MeshBasicMaterial({color: 0xFF0000});
+    const ray = new THREE.Mesh(geometry, material);
 
-    // const cube = new THREE.Mesh( new THREE.BoxGeometry(300,300,5), new THREE.MeshBasicMaterial({color : 0xffffff}));
-    // scene.add(cube);
-    // cube.position.set(100,0,-100);
-    const targetAndTime = [];
-    for(let i = 0; i < 25; i++)
+    //fix so rays go a consistent dist above/below and left/right of the neutron wall
+    ray.geometry.rotateX(Math.PI/2);
+    const xdiff = Math.random() * ndimensions.x;
+    const x_ray_pos = (neutron_wall.position.x - .5 * xdiff) + 2 * xdiff * Math.cos(Math.PI/2 - rot);
+    const y_ray_pos = (-.5 * ndimensions.y) + Math.random() * ndimensions.y * 2;
+    const z_ray_pos = (neutron_wall.position.z - .5 * xdiff) + 2 * xdiff * Math.sin(Math.PI/2 - rot);
+    const time = 3000 + Math.random() * 2000;
+    const target = new THREE.Vector3(x_ray_pos, y_ray_pos, z_ray_pos);
+    ray.lookAt(target);
+
+    return {ray, target, time};
+}
+
+// function generic_sphere(pos)
+// {
+//     const sphere = new THREE.Mesh( new THREE.SphereGeometry(5, 32, 16) , new THREE.MeshBasicMaterial({color : 0xffff00 }));
+//     sphere.material.transparent = true;
+//     sphere.material.opacity = 0;
+//     sphere.position.set(pos.x, pos.y, pos.z);
+//     return sphere;
+// }
+
+// function calc_veto_target(target)
+// {
+//     const xv = 620.1/(1.219 - target.z/target.x);
+//     const zv = target.z * (xv/target.x);
+//     const yv = target.y * (xv/target.x);
+//     return new THREE.Vector3(xv, yv, zv); 
+// }
+
+export function animations(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndimensions, rot, num_of_rays, cubevw, cuben)
+{
+    // const targetAndTime = [];
+    cubevw.updateWorldMatrix();
+    cuben.updateWorldMatrix();
+
+    for(let i = 0; i < num_of_rays; i++)
     {
-        const geometry = new THREE.CylinderGeometry(.75,.75,50,32);
-        const material = new THREE.MeshBasicMaterial({color: 0xFF0000});
-        const ray = new THREE.Mesh(geometry, material);
-        // ray.position.set(0,0,100);
-        
-        //veto wall version
-        // ray.geometry.rotateX(Math.PI/2);
-        // const xdiff = Math.random() * vwdimensions.x;
-        // const x_ray_pos = veto_wall.position.x + xdiff*Math.cos(Math.PI/2 - rot);
-        // const y_ray_pos = veto_wall.position.y + Math.random() * vwdimensions.y;
-        // const z_ray_pos = veto_wall.position.z + xdiff*Math.sin(Math.PI/2 - rot);
-        // const time = 3000 + Math.random() * 2000;
-        // ray.lookAt(x_ray_pos, y_ray_pos, z_ray_pos);
-
-        //neutron wall version
-        ray.geometry.rotateX(Math.PI/2);
-        const xdiff = Math.random() * ndimensions.x;
-        const x_ray_pos = neutron_wall.position.x + xdiff*Math.cos(Math.PI/2 - rot);
-        const y_ray_pos = Math.random() * ndimensions.y;
-        const z_ray_pos = neutron_wall.position.z + xdiff*Math.sin(Math.PI/2 - rot);
-        const time = 3000 + Math.random() * 2000;
-        const target = new THREE.Vector3(x_ray_pos, y_ray_pos, z_ray_pos);
-        ray.lookAt(target);
-
+        const {ray, target, time} = create_ray(veto_wall, neutron_wall, vwdimensions, ndimensions, rot);
         raygroup.add(ray);
-        // scene.add(ray);
-        targetAndTime.push([target, time]);
 
-        const sphere = new THREE.Mesh( new THREE.SphereGeometry(7, 32, 16) , new THREE.MeshBasicMaterial({color : 0xffff00 }));
-        sphere.material.transparent = true; //can try messing with the emissiveness property and see if that makes it look better, but if it doesn't then you can just switch back tot he basic material
-        sphere.material.opacity = 0;
-        sphere.position.set(x_ray_pos, y_ray_pos, z_ray_pos);
-        raygroup.add(sphere);
+        // targetAndTime.push([target, time]);
 
-        const xv = 620.1/(1.219 - z_ray_pos/x_ray_pos);
-        const zv = z_ray_pos * (xv/x_ray_pos);
-        const yv = y_ray_pos * (xv/x_ray_pos);
+        // const spheren = generic_sphere(target);
+        // raygroup.add(spheren);
 
-        const veto_target = new THREE.Vector3(xv, yv, zv);
+        // const veto_target = calc_veto_target(target);
         const origin = new THREE.Vector3(0,0,0);
 
         const speed = origin.distanceTo(target)/time;
-        const veto_time = origin.distanceTo(veto_target)/speed;
+        // const veto_time = origin.distanceTo(veto_target)/speed;
+        
+        const raycaster = new THREE.Raycaster(origin, target.clone().normalize());
+        const intersects = raycaster.intersectObjects([cubevw, cuben]);
+        intersects.forEach(intersection => {
+            const sphere = new THREE.Mesh( new THREE.SphereGeometry(5, 32, 16) , new THREE.MeshBasicMaterial({color : 0xffff00 }));
+            sphere.position.set(intersection.point.x, intersection.point.y, intersection.point.z);
+            raygroup.add(sphere);
+            sphere.material.transparent = true;
+            sphere.material.opacity = 0;
+            
+            const intersect_point = new THREE.Vector3(intersection.point.x, intersection.point.y, intersection.point.z);
+            const intersect_time = origin.distanceTo(intersect_point)/speed;
+            createjs.Tween.get(sphere.material, {loop: true}).wait(intersect_time - 500).to({opacity : 1}, 0).to({opacity:0}, 500).wait(time - intersect_time);
+        });
 
-        const spherev = new THREE.Mesh( new THREE.SphereGeometry(7, 32, 16) , new THREE.MeshBasicMaterial({color : 0xffff00 }));
-        spherev.material.transparent = true;
-        spherev.material.opacity = 0;
-        spherev.position.set(xv, yv, zv);
-        raygroup.add(spherev);
+        // const spherev = generic_sphere(veto_target);
+        // raygroup.add(spherev);
         
         // createjs.Tween.get(spherev.material, {loop: true}).wait(veto_time - 500).to({opacity : 1}, 0).to({opacity:0}, 500).wait(time - veto_time);
-        // createjs.Tween.get(sphere.material, {loop: true}).wait(time - 500).to({opacity : 1}, 0).to({opacity:0}, 500);
-        createjs.Tween.get(ray.position, {loop: true}).to({x: x_ray_pos, y: y_ray_pos, z: z_ray_pos}, time);
-        
-        // const raycaster = new THREE.Raycaster(new THREE.Vector3(0,0,0), target.clone().normalize());
-        
-
-        // let objects = [];
-        // veto_wall.children.forEach(bar => {
-        //     const world = new THREE.Vector3;
-        //     bar.getWorldPosition(world);
-        //     objects.push(world);
-        // });
-        // neutron_wall.children.forEach(bar => {
-        //     const world = new THREE.Vector3;
-        //     bar.getWorldPosition(world);
-        //     objects.push(world);
-        // });
-
-        // const cube = new THREE.Mesh( new THREE.BoxGeometry(300,300,5), new THREE.MeshBasicMaterial({color : 0xffffff}));
-        // scene.add(cube);
-        // cube.position.set(100,0,-100);
-
-        // const objects = [neutron_wall, veto_wall, cube];
-        // const intersects = raycaster.intersectObject(cube);
-        // console.log(intersects);
-        // console.log(veto_wall.children);
-        // console.log(objects);
-        // intersects.forEach(intersection => {
-        //     const sp = new THREE.Mesh( new THREE.SphereGeometry(7, 32, 16) , new THREE.MeshBasicMaterial({color : 0xffff00 }));
-        //     sp.position.set(intersection.point.x, intersection.point.y, intersection.point.y);
-        //     console.log(intersection.point.x, intersection.point.y, intersection.point.y);
-        //     scene.add(sp);
-
-        //     // intersection.object.material.color.set( 0xff0000 );
-        // });
-    
+        // createjs.Tween.get(spheren.material, {loop: true}).wait(time - 500).to({opacity : 1}, 0).to({opacity:0}, 500);
+        createjs.Tween.get(ray.position, {loop: true}).to({x: target.x, y: target.y, z: target.z}, time);
     }
     scene.add(raygroup);
-    return targetAndTime;
+    // return targetAndTime;
 }

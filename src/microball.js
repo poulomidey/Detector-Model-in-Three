@@ -1,54 +1,81 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
-// import * as Papa from 'https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.js';
 
+function create_trap(ay, az, cy, cz, shiftDown)
+{
+  let coordinatesList = [
+    new THREE.Vector2(az, ay - shiftDown),
+    new THREE.Vector2(-1*az, ay - shiftDown),
+    new THREE.Vector2(-1*cz,cy - shiftDown),
+    new THREE.Vector2(cz,cy - shiftDown),
+  ];
+
+  let shape = new THREE.Shape(coordinatesList);
+
+  const extrudeSettings = {
+    steps: 2,
+    depth: 0,
+    bevelEnabled: false,
+  };
+
+  let geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+  const material = new THREE.MeshLambertMaterial( { color: "hsl(275, 100%, 48%)" } );
+  let trap = new THREE.Mesh(geometry, material);
+  trap.material.transparent = true;
+
+  return trap;
+}
+
+function set_position(trap, i, n, theta, x_pos, yshift, ydist)
+{
+  trap.geometry.rotateY(Math.PI/2);
+  trap.position.y = ydist/2;
+  
+  trap.rotation.x = ((2*Math.PI)/n)*i;
+  trap.rotation.z = theta;
+
+  let matrixZ = new THREE.Matrix4();
+  matrixZ.makeRotationZ(theta);
+  trap.position.applyMatrix4(matrixZ);
+
+  trap.position.y = yshift;
+
+  let matrixX = new THREE.Matrix4();
+  matrixX.makeRotationX(((2*Math.PI)/n)*i);
+  trap.position.applyMatrix4(matrixX);
+
+  trap.position.x = x_pos;
+}
 
 function create_ring(ring, microball, n, theta, x_pos, ay, az, cy, cz, yshift, ydist)
 {
   for(let i = 0; i < n; i++)
   {
-      const shiftDown = cy + ydist/2;
-
-      let coordinatesList = [
-        new THREE.Vector2(az, ay - shiftDown),
-        new THREE.Vector2(-1*az, ay - shiftDown),
-        new THREE.Vector2(-1*cz,cy - shiftDown),
-        new THREE.Vector2(cz,cy - shiftDown),
-      ];
-  
-      let shape = new THREE.Shape(coordinatesList);
-
-      const extrudeSettings = {
-        steps: 2,
-        depth: 0,
-        bevelEnabled: false,
-      };
-
-      let geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-      const material = new THREE.MeshLambertMaterial( { color: "hsl(275, 100%, 48%)" } );
-      let trap = new THREE.Mesh(geometry, material);
-      trap.material.transparent = true;
-
-      trap.geometry.rotateY(Math.PI/2);
-      trap.position.y = ydist/2;
-      
-      trap.rotation.x = ((2*Math.PI)/n)*i;
-      trap.rotation.z = theta;
-  
-      let matrixZ = new THREE.Matrix4();
-      matrixZ.makeRotationZ(theta);
-      trap.position.applyMatrix4(matrixZ);
-
-      trap.position.y = yshift;
-
-      let matrixX = new THREE.Matrix4();
-      matrixX.makeRotationX(((2*Math.PI)/n)*i);
-      trap.position.applyMatrix4(matrixX);
-
-      trap.position.x = x_pos;
-      
-      ring.add(trap);
+    const shiftDown = cy + ydist/2;
+    const trap = create_trap(ay, az, cy, cz, shiftDown);
+    set_position(trap, i, n, theta, x_pos, yshift, ydist);
+    
+    ring.add(trap);
   }
   microball.add(ring);
+}
+
+function remove_ring(microball, rings_to_remove, trap_opacity)
+{
+  rings_to_remove.forEach(ring => {
+    microball.children[ring - 1].children.forEach(trap => {
+      trap.material.opacity = trap_opacity;
+    });
+  });
+}
+
+function remove_trap(microball, traps_to_remove, trap_opacity)
+{
+  traps_to_remove.forEach(row => {
+    for(let i = row.length - 1; i > 0; i--)
+    {
+      microball.children[row[0] - 1].children[row[i] - 1].material.opacity = trap_opacity;
+    }
+});
 }
 
 export function create_microball(scene, microball, rings_to_remove = [], traps_to_remove = [])
@@ -72,18 +99,9 @@ export function create_microball(scene, microball, rings_to_remove = [], traps_t
     create_ring(ring, microball, parseInt(points.data[i][0]), parseFloat(points.data[i][1]), parseFloat(points.data[i][2]), parseFloat(points.data[i][3]), parseFloat(points.data[i][4]), parseFloat(points.data[i][5]), parseFloat(points.data[i][6]), parseFloat(points.data[i][7]), parseFloat(points.data[i][8]));
   }
 
-  rings_to_remove.forEach(ring => {
-    microball.remove(microball.children[ring - 1])
-    // microball.children[ring - 1].opacity = .25;
-  });
-
-  traps_to_remove.forEach(row => {
-      for(let i = row.length - 1; i > 0; i--)
-      {
-          microball.children[row[0] - 1].remove(microball.children[row[0] - 1].children[row[i] - 1]);
-          // microball.children[row[0] - 1].children[row[i] - 1].opacity = 0;
-      }
-  });
+  const trap_opacity = .6;
+  remove_ring(microball, rings_to_remove, trap_opacity);
+  remove_trap(microball, traps_to_remove, trap_opacity)
 
   scene.add(microball);
 }

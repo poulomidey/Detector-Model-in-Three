@@ -13,8 +13,6 @@ export function setup()
     document.body.appendChild( VRButton.createButton( renderer ) );
     renderer.xr.enabled = true;
 
-    // document.body.appendChild( AnimationButton.createButton(renderer));
-
     const controls = new OrbitControls(camera, renderer.domElement);
     // const controls = new FlyControls(camera, renderer.domElement); //flycontrols
     // controls.dragToLook = true; //flycontrols
@@ -35,9 +33,7 @@ export function setup()
 
     //camera initial setup
     camera.position.set(-200, 200, 200);
-    // camera.position.set(600,200,0);
     camera.lookAt(0, 0, 0);
-    // camera.lookAt(veto_wall.position.x, veto_wall.position.y, veto_wall.position.z);
     controls.update();
 
     //grid
@@ -50,9 +46,10 @@ export function setup()
     // const axesHelper = new THREE.AxesHelper( 600 );
     // scene.add( axesHelper );
 
+    //might want to move vr camera to diff pos bc you can't see the neutron wall
     const cameraGroup = new THREE.Group();
-    // cameraGroup.position.set(150,50,-150);  // Set the initial VR Headset Position.
-    cameraGroup.position.set(-150, 50, -100) //vr for 
+    cameraGroup.position.set(150,50,-150);  // Set the initial VR Headset Position.
+    // cameraGroup.position.set(-150, 50, -100) //vr for Youtube
     renderer.xr.addEventListener('sessionstart', function() {
         scene.add(cameraGroup);
         cameraGroup.add(camera);
