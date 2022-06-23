@@ -20,7 +20,7 @@ export function setup()
     const scene = new THREE.Scene();
 
     //lighting and fog
-    // scene.background = new THREE.Color( 0xffffff );
+    // scene.background = new THREE.Color( 0xffffff ); //sets background to a diff color
     const directionalLight = new THREE.DirectionalLight( 0xffffff, .5);
     scene.add( directionalLight );
     directionalLight.position.y = 300;
@@ -28,8 +28,8 @@ export function setup()
     const light = new THREE.AmbientLight( 0xffffff );
     scene.add( light );
 
-    // scene.fog = new THREE.Fog(0x000000, 200, 1000);
-    scene.fog = new THREE.FogExp2(0x000000, .001);
+    // scene.fog = new THREE.Fog(0x000000, 200, 1000); //linear fog
+    scene.fog = new THREE.FogExp2(0x000000, .001); //exp fog
 
     //camera initial setup
     camera.position.set(-200, 200, 200);
@@ -46,7 +46,9 @@ export function setup()
     // const axesHelper = new THREE.AxesHelper( 600 );
     // scene.add( axesHelper );
 
-    //might want to move vr camera to diff pos bc you can't see the neutron wall
+    //TO-DO: might want to move vr camera to diff pos bc you can't see the neutron wall
+
+    //sets the initial position of the camera as you switch between VR and standard mode
     const cameraGroup = new THREE.Group();
     cameraGroup.position.set(150,50,-150);  // Set the initial VR Headset Position.
     // cameraGroup.position.set(-150, 50, -100) //vr for Youtube

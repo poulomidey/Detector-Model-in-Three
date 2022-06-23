@@ -30,8 +30,6 @@ function create_bar(i, x_dist, y_dist, z_dist, x_spacing, z_spacing)
 function set_position(veto_wall, x_dist, rot, vwdist)
 {
     // veto_wall.position.x -= x_dist/2;
-    // veto_wall.geometry.x = x_dist/2;
-
     const vwboundingBox = new THREE.Box3().setFromObject(veto_wall);
     let vwdimensions = new THREE.Vector3();
     vwboundingBox.getSize(vwdimensions);
@@ -42,18 +40,20 @@ function set_position(veto_wall, x_dist, rot, vwdist)
     return vwdimensions;
 }
 
+//invisible box of same size and position as veto wall for the collision detection
 function create_cubevw(vwdimensions, rot, vwdist)
 {
     const cubevw = new THREE.Mesh( new THREE.BoxGeometry(vwdimensions.x, vwdimensions.y, vwdimensions.z), new THREE.MeshBasicMaterial({color : 0xffffff}));
     cubevw.rotateY(-1*(Math.PI/2 - rot));
+    //position set from center of wall
     cubevw.position.set(vwdist * Math.cos(rot), vwdimensions.y/2, vwdist * Math.sin(rot) * -1);
-    //it's off in the local x direction a little bit, because the veto wall is. Could be errors if a collision is on the edges
+    //TO-DO: it's off in the local x direction a little bit, because the veto wall is. Could be errors if a collision is on the edges
     cubevw.material.transparent = true;
     cubevw.material.opacity = 0;
     return cubevw;
 }
 
-export function create_veto_wall(scene, veto_wall, bar_num, x_dist, y_dist, z_dist, x_spacing, z_spacing, rot, vwdist)
+export function create_veto_wall(veto_wall, bar_num, x_dist, y_dist, z_dist, x_spacing, z_spacing, rot, vwdist)
 {
     for(let i = 1; i <= bar_num; i++)
     {

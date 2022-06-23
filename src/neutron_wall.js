@@ -31,6 +31,7 @@ function set_position(neutron_wall, y_dist, rot, ndist)
     let ndimensions = new THREE.Vector3();
     nboundingBox.getSize(ndimensions);
 
+    //position set from bottom left corner of wall.
     neutron_wall.position.set(ndist * Math.cos(rot) - .5 * ndimensions.x * Math.sin(rot), neutron_wall.position.y, -1 * (ndist * Math.sin(rot) + .5 * ndimensions.x * Math.cos(rot)))
     neutron_wall.rotateY(-1*(Math.PI/2 - rot));
 
@@ -39,17 +40,19 @@ function set_position(neutron_wall, y_dist, rot, ndist)
     return ndimensions;
 }
 
+//invisible box of same size and position as neutron wall for the collision detection
 function create_cuben(ndimensions, rot, ndist)
 {
     const cuben = new THREE.Mesh( new THREE.BoxGeometry(ndimensions.x, ndimensions.y, ndimensions.z), new THREE.MeshBasicMaterial({color : 0xffffff}));
     cuben.rotateY(-1*(Math.PI/2 - rot));
+    //position set from center of wall
     cuben.position.set(ndist * Math.cos(rot), ndimensions.y/2, ndist * Math.sin(rot) * -1);
     cuben.material.transparent = true;
     cuben.material.opacity = 0;
     return cuben;
 }
 
-export function create_neutron_wall(scene, neutron_wall, bar_num, x_dist, y_dist, z_dist, spacing, rot, ndist)
+export function create_neutron_wall(neutron_wall, bar_num, x_dist, y_dist, z_dist, spacing, rot, ndist)
 {
     for (let i = 0; i < bar_num; i++)
     {
