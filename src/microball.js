@@ -1,8 +1,10 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
 
+//ay, az, cy, cz are the coordinates of the top right corner and bottom right corner of the first trapezoid when it's flat in the yz plane
+//(but trap is created in xz plane since it's a 2D shape, later rotated)
 function create_trap(ay, az, cy, cz, shiftDown)
 {
-  //trapezoids shifted down so that the created trapezoid is centers on the origin
+  //trapezoids shifted down so that the created trapezoid is centers on the origin when it's created so the rotation works right later
   let coordinatesList = [
     new THREE.Vector2(az, ay - shiftDown),
     new THREE.Vector2(-1*az, ay - shiftDown),
@@ -30,23 +32,23 @@ function create_trap(ay, az, cy, cz, shiftDown)
 //rotates and translates to set correct position of each trapezoid
 function set_position(trap, i, n, theta, x_pos, yshift, ydist)
 {
-  trap.geometry.rotateY(Math.PI/2);
-  trap.position.y = ydist/2;
+  trap.geometry.rotateY(Math.PI/2); //rotates trap so it's flat in the yz plane
+  trap.position.y = ydist/2; //translates up so the bottom of the trap is flush with the z axis
   
-  trap.rotation.x = ((2*Math.PI)/n)*i;
-  trap.rotation.z = theta;
+  trap.rotation.x = ((2*Math.PI)/n)*i; //rotates around local axis so it's pointing in the right direction, like for each triangle in a regular polygon
+  trap.rotation.z = theta; //tilts the trap back around local axis
 
   let matrixZ = new THREE.Matrix4();
   matrixZ.makeRotationZ(theta);
-  trap.position.applyMatrix4(matrixZ);
+  trap.position.applyMatrix4(matrixZ); //moves the trap to the correct position for the rotation around the z axis tilting it back
 
-  trap.position.y = yshift;
+  trap.position.y = yshift; //moves trap to correct height
 
-  let matrixX = new THREE.Matrix4();
+  let matrixX = new THREE.Matrix4(); 
   matrixX.makeRotationX(((2*Math.PI)/n)*i);
-  trap.position.applyMatrix4(matrixX);
+  trap.position.applyMatrix4(matrixX); //moves the trap to the correct position for the rotation around the x axis
 
-  trap.position.x = x_pos;
+  trap.position.x = x_pos; //moves the traps in a ring to the right position on the x axis for the microball
 }
 
 function create_ring(ring, microball, n, theta, x_pos, ay, az, cy, cz, yshift, ydist)

@@ -29,9 +29,9 @@ function set_position(neutron_wall, y_dist, rot, ndist)
 {
     const nboundingBox = new THREE.Box3().setFromObject(neutron_wall);
     let ndimensions = new THREE.Vector3();
-    nboundingBox.getSize(ndimensions);
+    nboundingBox.getSize(ndimensions); //vector containing the width, height, and depth of the bounding box of the neutron wall
 
-    //position set from bottom left corner of wall.
+    //sets the position of the wall because the veto_wall position is set relative to the bottom left corner, not the center
     neutron_wall.position.set(ndist * Math.cos(rot) - .5 * ndimensions.x * Math.sin(rot), neutron_wall.position.y, -1 * (ndist * Math.sin(rot) + .5 * ndimensions.x * Math.cos(rot)))
     neutron_wall.rotateY(-1*(Math.PI/2 - rot));
 
@@ -52,6 +52,10 @@ function create_cuben(ndimensions, rot, ndist)
     return cuben;
 }
 
+//x_dist: width of each bar, y_dist: height of each bar, z_dist: depth of each bar
+//spacing: distance bw each bar
+//ndist: the dist of the center of the neutron wall from the origin from the top view
+//rot: angle between the x axis and the line from the origin to the center of the neutron wall from top view
 export function create_neutron_wall(neutron_wall, bar_num, x_dist, y_dist, z_dist, spacing, rot, ndist)
 {
     for (let i = 0; i < bar_num; i++)

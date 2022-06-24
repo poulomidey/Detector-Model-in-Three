@@ -2,7 +2,7 @@ import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threej
 
 function create_bar(i, x_dist, y_dist, z_dist, x_spacing, z_spacing)
 {
-    let zigzag = z_spacing + z_dist/2;
+    let zigzag = z_spacing + z_dist/2; //sets spacing bw the bars but including the z_dist of the bars so it's accurate
     const geometry = new THREE.BoxGeometry(x_dist, y_dist, z_dist);
     let materialProperties;
     if (i % 2 != 0) {
@@ -32,8 +32,9 @@ function set_position(veto_wall, x_dist, rot, vwdist)
     // veto_wall.position.x -= x_dist/2;
     const vwboundingBox = new THREE.Box3().setFromObject(veto_wall);
     let vwdimensions = new THREE.Vector3();
-    vwboundingBox.getSize(vwdimensions);
+    vwboundingBox.getSize(vwdimensions);//vector containing the width, height, and depth of the bounding box of the neutron wall
 
+    //sets the position of the wall because the veto_wall position is set relative to the bottom left corner, not the center
     veto_wall.position.set(vwdist * Math.cos(rot) - .5 * vwdimensions.x * Math.sin(rot), 0, -1 * (vwdist * Math.sin(rot) + .5 * vwdimensions.x * Math.cos(rot)))
     veto_wall.rotateY(-1*(Math.PI/2 - rot));
 
@@ -53,6 +54,11 @@ function create_cubevw(vwdimensions, rot, vwdist)
     return cubevw;
 }
 
+//x_dist: width of each bar, y_dist: height of each bar, z_dist: depth of each bar
+//x_spacing: the width of the overlap bw each bar
+//z_spacing: 1/2 of the distance bw the bars in the z direction
+//vwdist: the dist of the center of the veto wall from the origin from the top view
+//rot: angle between the x axis and the line from the origin to the center of the veto wall from top view
 export function create_veto_wall(veto_wall, bar_num, x_dist, y_dist, z_dist, x_spacing, z_spacing, rot, vwdist)
 {
     for(let i = 1; i <= bar_num; i++)

@@ -6,7 +6,7 @@ import {create_microball} from "./microball.js";
 import {setup} from "./setup.js";
 import {animations} from "./ray_animation.js";
 
-const rot = .6871; //angle of rotation from vertical of veto wall and neutron wall in overall setup from top-view
+const rot = .6871; //angle between the x axis and the line from the origin to the center of the veto/neutron wall from top view
 
 let {scene, camera, renderer, controls} = setup();
 
