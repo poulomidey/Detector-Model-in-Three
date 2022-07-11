@@ -1,106 +1,122 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
-// import { TWEEN } from 'https://unpkg.com/three@0.139.0/examples/jsm/libs/tween.module.min.js';
 
-export function rays(scene, raygroup, veto_wall, neutron_wall, vwdimensions, ndimensions, rot)
+function create_ray(veto_wall, neutron_wall, microball, vwdimensions, ndimensions, rot)
 {
-    const objects = veto_wall.children.concat(neutron_wall.children); //when you get this to work, move it out of the for loop
+    const geometry = new THREE.CylinderGeometry(.5,.5,25,32);
+    const material = new THREE.MeshBasicMaterial({color: 0xFF0000});
+    const ray = new THREE.Mesh(geometry, material);
 
-    // const cube = new THREE.Mesh( new THREE.BoxGeometry(300,300,5), new THREE.MeshBasicMaterial({color : 0xffffff}));
-    // scene.add(cube);
-    // cube.position.set(100,0,-100);
-    const targetAndTime = [];
+    //sets random destination and time to get there for the ray
+    //TO-DO: not sure if the rays are going off the left of the neutron wall as much as they're going off the right
+    ray.geometry.rotateX(Math.PI/2);
+    const xdiff = Math.random() * ndimensions.x;
+    const x_ray_pos = (neutron_wall.position.x - .5 * ndimensions.x * Math.sin(rot)) + 2 * xdiff * Math.sin(rot); //some rays go to the left and right of the neutron wall on the same plane
+    const y_ray_pos = (neutron_wall.position.y -.5 * ndimensions.y) + Math.random() * ndimensions.y * 2; //some rays go above and below neutron wall on the same plane
+    const z_ray_pos = (neutron_wall.position.z - .5 * ndimensions.x * Math.cos(rot)) + 2 * xdiff * Math.cos(rot);
+    const time = 5000 + Math.random() * 4000; //sets the time it takes the ray to get to its target bw 3 and 5 seconds, therefore setting the speed
+    const scalar = 1 + Math.random()*.5;
+    // const time = 3000 + Math.random() * 2000;
+    const target = new THREE.Vector3(x_ray_pos, y_ray_pos, z_ray_pos);
+    target.multiplyScalar(scalar);
+    ray.lookAt(target);
 
-    for(let i = 0; i < 25; i++)
+    return {ray, target, time};
+}
+
+export function animations(raygroup, veto_wall, neutron_wall, microball, vwdimensions, ndimensions, rot, num_of_rays, cubevw, cuben)
+{
+    //TO-DO: break this up into more functions
+    cubevw.updateWorldMatrix(); //needed to make raycaster work outside render loop
+    cuben.updateWorldMatrix();
+
+    let traps = [];
+    microball.children.forEach(ring => {
+        traps = traps.concat(ring.children);
+    });
+
+    microball.children.forEach(ring => {
+        ring.children.forEach(trap => {
+            trap.updateWorldMatrix();
+        });
+    });
+
+    let microball_intersects = new Map();
+
+    for(let i = 0; i < num_of_rays; i++)
     {
-        const geometry = new THREE.CylinderGeometry(.75,.75,50,32);
-        const material = new THREE.MeshBasicMaterial({color: 0xFF0000});
-        const ray = new THREE.Mesh(geometry, material);
-        // ray.position.set(0,0,100);
-        
-        //veto wall version
-        // ray.geometry.rotateX(Math.PI/2);
-        // const xdiff = Math.random() * vwdimensions.x;
-        // const x_ray_pos = veto_wall.position.x + xdiff*Math.cos(Math.PI/2 - rot);
-        // const y_ray_pos = veto_wall.position.y + Math.random() * vwdimensions.y;
-        // const z_ray_pos = veto_wall.position.z + xdiff*Math.sin(Math.PI/2 - rot);
-        // const time = 3000 + Math.random() * 2000;
-        // ray.lookAt(x_ray_pos, y_ray_pos, z_ray_pos);
-
-        //neutron wall version
-        ray.geometry.rotateX(Math.PI/2);
-      
-        const xdiff = Math.random() * ndimensions.x;
-        const x_ray_pos = neutron_wall.position.x + xdiff*Math.cos(Math.PI/2 - rot);
-        const y_ray_pos = Math.random() * ndimensions.y;
-        const z_ray_pos = neutron_wall.position.z + xdiff*Math.sin(Math.PI/2 - rot);
-        const time = 3000 + Math.random() * 2000;
-        const target = new THREE.Vector3(x_ray_pos, y_ray_pos, z_ray_pos);
-        ray.lookAt(target);
-
+        const {ray, target, time} = create_ray(veto_wall, neutron_wall, microball, vwdimensions, ndimensions, rot);
         raygroup.add(ray);
-        // scene.add(ray);
-        // targetAndTime.push([target, time]);
 
-        const sphere = new THREE.Mesh( new THREE.SphereGeometry(7, 32, 16) , new THREE.MeshBasicMaterial({color : 0xffff00 }));
-        sphere.material.transparent = true; //can try messing with the emissiveness property and see if that makes it look better, but if it doesn't then you can just switch back tot he basic material
-        sphere.material.opacity = 0;
-        sphere.position.set(x_ray_pos, y_ray_pos, z_ray_pos);
-        raygroup.add(sphere);
-
-        const xv = 620.1/(1.219 - z_ray_pos/x_ray_pos);
-        const zv = z_ray_pos * (xv/x_ray_pos);
-        const yv = y_ray_pos * (xv/x_ray_pos);
-
-        const veto_target = new THREE.Vector3(xv, yv, zv);
         const origin = new THREE.Vector3(0,0,0);
-
         const speed = origin.distanceTo(target)/time;
-        const veto_time = origin.distanceTo(veto_target)/speed;
-
-        const spherev = new THREE.Mesh( new THREE.SphereGeometry(7, 32, 16) , new THREE.MeshBasicMaterial({color : 0xffff00 }));
-        spherev.material.transparent = true;
-        spherev.material.opacity = 0;
-        spherev.position.set(xv, yv, zv);
-        raygroup.add(spherev);
+        const sphere_time = 25/speed; //25 is the length of the ray
         
-        createjs.Tween.get(spherev.material, {loop: true}).wait(veto_time - 500).to({opacity : 1}, 0).to({opacity:0}, 500).wait(time - veto_time);
-        createjs.Tween.get(sphere.material, {loop: true}).wait(time - 500).to({opacity : 1}, 0).to({opacity:0}, 500);
-        createjs.Tween.get(ray.position, {loop: true}).to({x: x_ray_pos, y: y_ray_pos, z: z_ray_pos}, time);
+        //casts ray from origin in direction of target vector for each ray
+        const raycaster = new THREE.Raycaster(origin, target.clone().normalize());
+
+        let start = 0;
+        if(Math.random() < 0.25) //25% of the particles are neutrons, or the collision is only detected with the neutron wall, not the veto wall.
+        {
+            start = 1;
+        }
+        const intersections = raycaster.intersectObjects([cubevw, cuben]); //list of all intersection points with cubevw and cuben
+        for(let i = start; i < intersections.length; i++)
+        {
+            const sphere = new THREE.Mesh( new THREE.SphereGeometry(5, 32, 16) , new THREE.MeshBasicMaterial({color : 0xffff00 }));
+            sphere.position.set(intersections[i].point.x, intersections[i].point.y, intersections[i].point.z); //adds sphere at point of each intersection for each ray
+            raygroup.add(sphere);
+            sphere.material.transparent = true;
+            sphere.material.opacity = 0;
+            
+            const intersect_point = new THREE.Vector3(intersections[i].point.x, intersections[i].point.y, intersections[i].point.z);
+            const intersect_time = origin.distanceTo(intersect_point)/speed;
+            //TO-DO: the spheres show up slightly before the collision for some of the rays, so change the timing later
+            //the sphere should be there the whole time the ray is intersecting with the wall
+
+            //animates the spheres to fade in and out with collision
+            createjs.Tween.get(sphere.material, {loop: true}).wait(intersect_time - 500).to({opacity : 1}, 0).to({opacity:0}, 500).wait(time - intersect_time);
+            createjs.Tween.get(sphere.material, {loop: true}).wait(intersect_time - sphere_time/2).to({opacity : 1}, 0).to({opacity:0}, sphere_time).wait(time - intersect_time - sphere_time/2);
+        }
+
+        // const intersects_microball = raycaster.intersectObjects(traps);
+        // intersects_microball.forEach(intersection => {
+        //     // intersection.object.material.color.set(0x0400FF);
+        //     const wait_time = intersection.distance/speed;
+        //     if(microball_intersects.has(intersection.object))
+        //     {
+        //         microball_intersects.get(intersection.object).push(wait_time);
+        //     }
+        //     else
+        //     {
+        //         microball_intersects.set(intersection.object, [wait_time]);
+        //     }
+        //     //maybe the animations aren't lining up bc 
+        //     createjs.Tween.get(intersection.object.material.color, {loop: true})
+        //         .wait(wait_time)
+        //         .to({r: 0, g: 0, b: 1}, 0)
+        //         .wait(200)
+        //         .to({r: .561, g: 0, b: .961}, 0)
+        //         .wait(time - wait_time - 200);
+        // });
+        // console.log(intersects_microball);
+        // console.log(traps);
         
-        // const raycaster = new THREE.Raycaster(new THREE.Vector3(0,0,0), target.clone().normalize());
-        
 
-        // let objects = [];
-        // veto_wall.children.forEach(bar => {
-        //     const world = new THREE.Vector3;
-        //     bar.getWorldPosition(world);
-        //     objects.push(world);
-        // });
-        // neutron_wall.children.forEach(bar => {
-        //     const world = new THREE.Vector3;
-        //     bar.getWorldPosition(world);
-        //     objects.push(world);
-        // });
-
-        // const cube = new THREE.Mesh( new THREE.BoxGeometry(300,300,5), new THREE.MeshBasicMaterial({color : 0xffffff}));
-        // scene.add(cube);
-        // cube.position.set(100,0,-100);
-
-        // const objects = [neutron_wall, veto_wall, cube];
-        // const intersects = raycaster.intersectObject(cube);
-        // console.log(intersects);
-        // console.log(veto_wall.children);
-        // console.log(objects);
-        // intersects.forEach(intersection => {
-        //     const sp = new THREE.Mesh( new THREE.SphereGeometry(7, 32, 16) , new THREE.MeshBasicMaterial({color : 0xffff00 }));
-        //     sp.position.set(intersection.point.x, intersection.point.y, intersection.point.y);
-        //     console.log(intersection.point.x, intersection.point.y, intersection.point.y);
-        //     scene.add(sp);
-
-        //     // intersection.object.material.color.set( 0xff0000 );
-        // });
-    
+        //animates rays to move to target
+        createjs.Tween.get(ray.position, {loop: true}).to({x: target.x, y: target.y, z: target.z}, time);
     }
-    scene.add(raygroup);
-    // return targetAndTime;
+
+    // microball_intersects.forEach((value, key) => {
+    //     // console.log(value);
+    //     value.sort(function(a, b){return a - b});
+    //     //this won't work because the rays are on different time loops, so from the trap's perspective, the timing that each ray hits it changes in relation to each other every time (predictably but still), so you can't make a single short loop for it.
+    //     let color_change = createjs.Tween.get(key.material.color, {loop: true})
+    //         .wait(value[0])
+    //         .to({r: 0, g: 0, b: 1}, 0)
+    //         .wait(200)
+    //         .to({r: .561, g: 0, b: .961}, 0);
+    // });
+
+    console.log(microball_intersects);
+    
 }
