@@ -35,7 +35,7 @@ function set_position(veto_wall, x_dist, rot, vwdist)
     vwboundingBox.getSize(vwdimensions);//vector containing the width, height, and depth of the bounding box of the neutron wall
 
     //sets the position of the wall because the veto_wall position is set relative to the bottom left corner, not the center
-    veto_wall.position.set(vwdist * Math.cos(rot) - .5 * vwdimensions.x * Math.sin(rot), 0, -1 * (vwdist * Math.sin(rot) + .5 * vwdimensions.x * Math.cos(rot)))
+    veto_wall.position.set(vwdist * Math.cos(rot) - .5 * vwdimensions.x * Math.sin(rot), -113.6181, -1 * (vwdist * Math.sin(rot) + .5 * vwdimensions.x * Math.cos(rot)))
     veto_wall.rotateY(-1*(Math.PI/2 - rot));
 
     return vwdimensions;
@@ -47,7 +47,7 @@ function create_cubevw(vwdimensions, rot, vwdist)
     const cubevw = new THREE.Mesh( new THREE.BoxGeometry(vwdimensions.x, vwdimensions.y, vwdimensions.z), new THREE.MeshBasicMaterial({color : 0xffffff}));
     cubevw.rotateY(-1*(Math.PI/2 - rot));
     //position set from center of wall
-    cubevw.position.set(vwdist * Math.cos(rot), vwdimensions.y/2, vwdist * Math.sin(rot) * -1);
+    cubevw.position.set(vwdist * Math.cos(rot), 0, vwdist * Math.sin(rot) * -1);
     //TO-DO: it's off in the local x direction a little bit, because the veto wall is. Could be errors if a collision is on the edges
     cubevw.material.transparent = true;
     cubevw.material.opacity = 0;

@@ -35,18 +35,18 @@ function set_position(neutron_wall, y_dist, rot, ndist)
     neutron_wall.position.set(ndist * Math.cos(rot) - .5 * ndimensions.x * Math.sin(rot), neutron_wall.position.y, -1 * (ndist * Math.sin(rot) + .5 * ndimensions.x * Math.cos(rot)))
     neutron_wall.rotateY(-1*(Math.PI/2 - rot));
 
-    neutron_wall.position.y += y_dist/2;
+    neutron_wall.position.y += y_dist/2 - 110.8049;
 
     return ndimensions;
 }
 
 //invisible box of same size and position as neutron wall for the collision detection
-function create_cuben(ndimensions, rot, ndist)
+function create_cuben(neutron_wall, ndimensions, rot, ndist, y_dist)
 {
     const cuben = new THREE.Mesh( new THREE.BoxGeometry(ndimensions.x, ndimensions.y, ndimensions.z), new THREE.MeshBasicMaterial({color : 0xffffff}));
     cuben.rotateY(-1*(Math.PI/2 - rot));
     //position set from center of wall
-    cuben.position.set(ndist * Math.cos(rot), ndimensions.y/2, ndist * Math.sin(rot) * -1);
+    cuben.position.set(ndist * Math.cos(rot), neutron_wall.position.y + ndimensions.y/2 - y_dist/2, ndist * Math.sin(rot) * -1);
     cuben.material.transparent = true;
     cuben.material.opacity = 0;
     return cuben;
@@ -64,6 +64,6 @@ export function create_neutron_wall(neutron_wall, bar_num, x_dist, y_dist, z_dis
     }
 
     const ndimensions = set_position(neutron_wall, y_dist, rot, ndist);
-    const cuben = create_cuben(ndimensions, rot, ndist);
+    const cuben = create_cuben(neutron_wall, ndimensions, rot, ndist, y_dist);
     return {ndimensions, cuben};
 }

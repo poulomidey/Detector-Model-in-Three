@@ -26,7 +26,7 @@ create_microball(microball, [1,6,9], [[3,3,4,5,6],[4,4,5,6],[5,4,5,6]]);
 scene.add(microball);
 
 const raygroup = new THREE.Group();
-animations(raygroup, veto_wall, neutron_wall, vwdimensions, ndimensions, rot, 40, cubevw, cuben);
+animations(raygroup, veto_wall, neutron_wall, microball, vwdimensions, ndimensions, rot, 40, cubevw, cuben);
 scene.add(raygroup);
 
 function animate() {
@@ -37,4 +37,6 @@ function animate() {
 
 animate();
 
-
+//next things: make some the collisions only on one wall.
+// fix microball animation
+// change camera starting pos for normal and vr
