@@ -4,6 +4,7 @@ import {create_neutron_wall} from "./neutron_wall.js";
 import {create_veto_wall} from "./veto_wall.js";
 import {create_microball} from "./microball.js";
 import {setup} from "./setup.js";
+
 import {animations} from "./ray_animation.js";
 
 const rot = .6871; //angle between the x axis and the line from the origin to the center of the veto/neutron wall from top view
@@ -25,9 +26,11 @@ const microball = new THREE.Group();
 create_microball(microball, [1,6,9], [[3,3,4,5,6],[4,4,5,6],[5,4,5,6]]);
 scene.add(microball);
 
+
 const raygroup = new THREE.Group();
 animations(raygroup, veto_wall, neutron_wall, microball, vwdimensions, ndimensions, rot, 40, cubevw, cuben);
 scene.add(raygroup);
+
 
 function animate() {
     renderer.render(scene, camera);
