@@ -32,12 +32,12 @@ export function setup()
     scene.fog = new THREE.FogExp2(0x000000, .001); //exp fog
 
     //camera initial setup
-    camera.position.set(-200, 200, 200);
+    camera.position.set(300, 200, 200);
     camera.lookAt(0, 0, 0);
     controls.update();
 
     //grid
-    const size = 900;
+    const size = 1000;
     const divisions = 50;
     const gridHelper = new THREE.GridHelper( size, divisions );
     scene.add( gridHelper );
@@ -50,7 +50,7 @@ export function setup()
 
     //sets the initial position of the camera as you switch between VR and standard mode
     const cameraGroup = new THREE.Group();
-    cameraGroup.position.set(150,50,-150);  // Set the initial VR Headset Position.
+    cameraGroup.position.set(250,50,150);  // Set the initial VR Headset Position.
     // cameraGroup.position.set(-150, 50, -100) //vr for Youtube
     renderer.xr.addEventListener('sessionstart', function() {
         scene.add(cameraGroup);
@@ -59,7 +59,7 @@ export function setup()
     renderer.xr.addEventListener('sessionend', function() {
         scene.remove(cameraGroup);
         cameraGroup.remove(camera);
-        camera.position.set(-200,200,200);
+        camera.position.set(300,200,200);
         camera.lookAt(0,0,0);
         controls.update();
     });
