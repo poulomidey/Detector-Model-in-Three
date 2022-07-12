@@ -14,7 +14,7 @@ function create_ray(veto_wall, neutron_wall, microball, vwdimensions, ndimension
     const y_ray_pos = (neutron_wall.position.y -.5 * ndimensions.y) + Math.random() * ndimensions.y * 2; //some rays go above and below neutron wall on the same plane
     const z_ray_pos = (neutron_wall.position.z - .5 * ndimensions.x * Math.cos(rot)) + 2 * xdiff * Math.cos(rot);
     const time = 5000 + Math.random() * 4000; //sets the time it takes the ray to get to its target bw 3 and 5 seconds, therefore setting the speed
-    const scalar = 1 + Math.random()*.5;
+    const scalar = 1.05 + Math.random()*.5;
     // const time = 3000 + Math.random() * 2000;
     const target = new THREE.Vector3(x_ray_pos, y_ray_pos, z_ray_pos);
     target.multiplyScalar(scalar);
@@ -98,9 +98,8 @@ export function animations(raygroup, veto_wall, neutron_wall, microball, vwdimen
         //         .to({r: .561, g: 0, b: .961}, 0)
         //         .wait(time - wait_time - 200);
         // });
-        // console.log(intersects_microball);
-        // console.log(traps);
-        
+
+        //make tweens be triggered by the start of the ray loop
 
         //animates rays to move to target
         createjs.Tween.get(ray.position, {loop: true}).to({x: target.x, y: target.y, z: target.z}, time);
