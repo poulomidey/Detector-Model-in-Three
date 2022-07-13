@@ -55,7 +55,7 @@ export function animations(raygroup, veto_wall, neutron_wall, microball, vwdimen
         const raycaster = new THREE.Raycaster(origin, target.clone().normalize());
 
         let start = 0;
-        if(Math.random() < 0.25) //25% of the particles are neutrons, or the collision is only detected with the neutron wall, not the veto wall.
+        if(Math.random() < 0.5) //50% of the particles are neutrons, or the collision is only detected with the neutron wall, not the veto wall.
         {
             start = 1;
         }
@@ -70,52 +70,40 @@ export function animations(raygroup, veto_wall, neutron_wall, microball, vwdimen
             
             const intersect_point = new THREE.Vector3(intersections[i].point.x, intersections[i].point.y, intersections[i].point.z);
             const intersect_time = origin.distanceTo(intersect_point)/speed;
-            //TO-DO: the spheres show up slightly before the collision for some of the rays, so change the timing later
-            //the sphere should be there the whole time the ray is intersecting with the wall
 
-            //animates the spheres to fade in and out with collision
-            createjs.Tween.get(sphere.material, {loop: true}).wait(intersect_time - 500).to({opacity : 1}, 0).to({opacity:0}, 500).wait(time - intersect_time);
-            createjs.Tween.get(sphere.material, {loop: true}).wait(intersect_time - sphere_time/2).to({opacity : 1}, 0).to({opacity:0}, sphere_time).wait(time - intersect_time - sphere_time/2);
+            createjs.Tween.get(sphere.material, {loop: true})
+                .wait(intersect_time - 500)
+                .to({opacity : 1}, 0)
+                .to({opacity:0}, 500)
+                .wait(time - intersect_time);
+            createjs.Tween.get(sphere.material, {loop: true})
+                .wait(intersect_time - sphere_time/2)
+                .to({opacity : 1}, 0)
+                .to({opacity:0}, sphere_time)
+                .wait(time - intersect_time - sphere_time/2);
         }
 
-        // const intersects_microball = raycaster.intersectObjects(traps);
-        // intersects_microball.forEach(intersection => {
-        //     // intersection.object.material.color.set(0x0400FF);
-        //     const wait_time = intersection.distance/speed;
-        //     if(microball_intersects.has(intersection.object))
-        //     {
-        //         microball_intersects.get(intersection.object).push(wait_time);
-        //     }
-        //     else
-        //     {
-        //         microball_intersects.set(intersection.object, [wait_time]);
-        //     }
-        //     //maybe the animations aren't lining up bc 
-        //     createjs.Tween.get(intersection.object.material.color, {loop: true})
-        //         .wait(wait_time)
-        //         .to({r: 0, g: 0, b: 1}, 0)
-        //         .wait(200)
-        //         .to({r: .561, g: 0, b: .961}, 0)
-        //         .wait(time - wait_time - 200);
-        // });
-
-        //make tweens be triggered by the start of the ray loop
+        const intersects_microball = raycaster.intersectObjects(traps);
+        intersects_microball.forEach(intersection => {
+            const trap_copy = new THREE.Mesh(intersection.object.geometry, new THREE.MeshLambertMaterial(0x002FFF));
+            raygroup.add(trap_copy);
+            trap_copy.material.color.set(0x002FFF);
+            trap_copy.material.transparent = true;
+            trap_copy.material.opacity = 0;
+            trap_copy.position.set(intersection.object.position.x, intersection.object.position.y, intersection.object.position.z);
+            trap_copy.rotation.x = intersection.object.rotation.x;
+            trap_copy.rotation.y = intersection.object.rotation.y;
+            trap_copy.rotation.z = intersection.object.rotation.z;
+            const wait_time = intersection.distance/speed;
+            createjs.Tween.get(trap_copy.material, {loop: true})
+                .wait(wait_time)
+                .to({opacity : 1}, 0)
+                .wait(200)
+                .to({opacity : 0}, 0)
+                .wait(time - wait_time - 200);
+        });
 
         //animates rays to move to target
         createjs.Tween.get(ray.position, {loop: true}).to({x: target.x, y: target.y, z: target.z}, time);
     }
-
-    // microball_intersects.forEach((value, key) => {
-    //     // console.log(value);
-    //     value.sort(function(a, b){return a - b});
-    //     //this won't work because the rays are on different time loops, so from the trap's perspective, the timing that each ray hits it changes in relation to each other every time (predictably but still), so you can't make a single short loop for it.
-    //     let color_change = createjs.Tween.get(key.material.color, {loop: true})
-    //         .wait(value[0])
-    //         .to({r: 0, g: 0, b: 1}, 0)
-    //         .wait(200)
-    //         .to({r: .561, g: 0, b: .961}, 0);
-    // });
-
-    console.log(microball_intersects);
-    
 }

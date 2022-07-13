@@ -105,10 +105,10 @@ export function create_microball(microball, rings_to_remove = [], traps_to_remov
   for(let i = 1; i < points.data.length; i++)
   {
     const ring = new THREE.Group();
-    create_ring(ring, microball, parseInt(points.data[i][0]), parseFloat(points.data[i][1]), parseFloat(points.data[i][2]), parseFloat(points.data[i][3]), parseFloat(points.data[i][4]), parseFloat(points.data[i][5]), parseFloat(points.data[i][6]), parseFloat(points.data[i][7]), parseFloat(points.data[i][8]), parseFloat(points.data[i][9]));
+    create_ring(ring, microball, parseInt(points.data[i][0]), parseFloat(points.data[i][1]), parseFloat(points.data[i][2])/10, parseFloat(points.data[i][3])/10, parseFloat(points.data[i][4])/10, parseFloat(points.data[i][5])/10, parseFloat(points.data[i][6])/10, parseFloat(points.data[i][7])/10, parseFloat(points.data[i][8])/10, parseFloat(points.data[i][9])/10);
   }
 
-  microball.scale.set(.1,.1,.1);
+  // microball.scale.set(.1,.1,.1);
 
   //reduces opacity of rings/traps as necessary
   const trap_opacity = .25;
