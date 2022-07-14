@@ -85,9 +85,10 @@ export function animations(raygroup, veto_wall, neutron_wall, microball, vwdimen
 
         const intersects_microball = raycaster.intersectObjects(traps);
         intersects_microball.forEach(intersection => {
+            //TO DO: change timing of flash to be time of intersection with the ray
             const trap_copy = new THREE.Mesh(intersection.object.geometry, new THREE.MeshLambertMaterial(0x002FFF));
             raygroup.add(trap_copy);
-            trap_copy.material.color.set(0x002FFF);
+            trap_copy.material.color.set(0xffff00);
             trap_copy.material.transparent = true;
             trap_copy.material.opacity = 0;
             trap_copy.position.set(intersection.object.position.x, intersection.object.position.y, intersection.object.position.z);

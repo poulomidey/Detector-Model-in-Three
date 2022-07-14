@@ -50,7 +50,7 @@ export function setup()
 
     //sets the initial position of the camera as you switch between VR and standard mode
     const cameraGroup = new THREE.Group();
-    cameraGroup.position.set(250,50,150);  // Set the initial VR Headset Position.
+    cameraGroup.position.set(-25,20,-50);  // Set the initial VR Headset Position.
     // cameraGroup.position.set(-150, 50, -100) //vr for Youtube
     renderer.xr.addEventListener('sessionstart', function() {
         scene.add(cameraGroup);
