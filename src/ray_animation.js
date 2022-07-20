@@ -1,5 +1,35 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
 
+function setup(cubevw, cuben, microball, veto_wall, neutron_wall)
+{
+    cubevw.updateWorldMatrix(); //needed to make raycaster work outside render loop
+    cuben.updateWorldMatrix();
+
+    let traps = [];
+    microball.children.forEach(ring => {
+        traps = traps.concat(ring.children);
+    });
+
+    microball.children.forEach(ring => {
+        ring.children.forEach(trap => {
+            trap.updateWorldMatrix();
+        });
+    });
+
+    veto_wall.updateWorldMatrix();
+    neutron_wall.updateWorldMatrix();
+    
+    veto_wall.children.forEach(bar => {
+        bar.updateWorldMatrix();
+    });
+
+    neutron_wall.children.forEach(bar => {
+        bar.updateWorldMatrix();
+    });
+
+    return traps;
+}
+
 function create_ray(veto_wall, neutron_wall, microball, vwdimensions, ndimensions, rot)
 {
     const geometry = new THREE.CylinderGeometry(.5,.5,25,32);
@@ -23,24 +53,64 @@ function create_ray(veto_wall, neutron_wall, microball, vwdimensions, ndimension
     return {ray, target, time};
 }
 
+function animate_spheres(raygroup, raycaster, cubevw, cuben, color, time, speed, sphere_time, start)
+{
+    const intersections = raycaster.intersectObjects([cubevw, cuben]); //list of all intersection points with cubevw and cuben
+    for(let i = start; i < intersections.length; i++)
+    {
+        //adding spheres
+        const sphere = new THREE.Mesh( new THREE.SphereGeometry(5, 32, 16) , new THREE.MeshBasicMaterial({color : color }));
+        sphere.position.set(intersections[i].point.x, intersections[i].point.y, intersections[i].point.z); //adds sphere at point of each intersection for each ray
+        raygroup.add(sphere);
+        sphere.material.transparent = true;
+        sphere.material.opacity = 0;
+        
+        const intersect_time =intersections[i].distance/speed;
+
+        createjs.Tween.get(sphere.material, {loop: true})
+            .wait(intersect_time - sphere_time/2)
+            .to({opacity : 1}, 0)
+            .to({opacity:0}, sphere_time)
+            .wait(time - intersect_time - sphere_time/2);
+    }
+}
+
+function animate_color_change(raygroup, raycaster, children, color, time, speed, sphere_time, start = 0)
+{
+    const intersects_group = raycaster.intersectObjects(children);
+    //have to make the flashes line up with the 50% of spheres that don't show up.
+    //Will you keep both the spheres and the flashes?
+    intersects_group.forEach(intersection => {
+        if(start == 0)
+        {
+            const copy = new THREE.Mesh(intersection.object.geometry, new THREE.MeshLambertMaterial(color));
+            raygroup.add(copy);
+            copy.material.color.set(color);
+            copy.material.transparent = true;
+            copy.material.opacity = 0;
+            const world_pos = new THREE.Vector3();
+            intersection.object.localToWorld( world_pos );
+            copy.position.set(world_pos.x, world_pos.y, world_pos.z);
+            const quaternion = new THREE.Quaternion();
+            intersection.object.getWorldQuaternion(quaternion);
+            copy.setRotationFromQuaternion(quaternion);
+            console.log(intersection.object.rotation.x, intersection.object.rotation.y, intersection.object.rotation.z);
+            const wait_time = intersection.distance/speed;
+            
+            createjs.Tween.get(copy.material, {loop: true})
+                .wait(wait_time - sphere_time/2)
+                .to({opacity : 1}, 0)
+                .wait(sphere_time)
+                .to({opacity : 0}, 0)
+                .wait(time - wait_time - sphere_time/2);
+        }
+    });
+}
+
 export function animations(raygroup, veto_wall, neutron_wall, microball, vwdimensions, ndimensions, rot, num_of_rays, cubevw, cuben)
 {
     //TO-DO: break this up into more functions
-    cubevw.updateWorldMatrix(); //needed to make raycaster work outside render loop
-    cuben.updateWorldMatrix();
-
-    let traps = [];
-    microball.children.forEach(ring => {
-        traps = traps.concat(ring.children);
-    });
-
-    microball.children.forEach(ring => {
-        ring.children.forEach(trap => {
-            trap.updateWorldMatrix();
-        });
-    });
-
-    let microball_intersects = new Map();
+    let traps = setup(cubevw, cuben, microball, veto_wall, neutron_wall);
 
     for(let i = 0; i < num_of_rays; i++)
     {
@@ -59,51 +129,12 @@ export function animations(raygroup, veto_wall, neutron_wall, microball, vwdimen
         {
             start = 1;
         }
-        const intersections = raycaster.intersectObjects([cubevw, cuben]); //list of all intersection points with cubevw and cuben
-        for(let i = start; i < intersections.length; i++)
-        {
-            const sphere = new THREE.Mesh( new THREE.SphereGeometry(5, 32, 16) , new THREE.MeshBasicMaterial({color : 0xffff00 }));
-            sphere.position.set(intersections[i].point.x, intersections[i].point.y, intersections[i].point.z); //adds sphere at point of each intersection for each ray
-            raygroup.add(sphere);
-            sphere.material.transparent = true;
-            sphere.material.opacity = 0;
-            
-            const intersect_point = new THREE.Vector3(intersections[i].point.x, intersections[i].point.y, intersections[i].point.z);
-            const intersect_time = origin.distanceTo(intersect_point)/speed;
 
-            createjs.Tween.get(sphere.material, {loop: true})
-                .wait(intersect_time - 500)
-                .to({opacity : 1}, 0)
-                .to({opacity:0}, 500)
-                .wait(time - intersect_time);
-            createjs.Tween.get(sphere.material, {loop: true})
-                .wait(intersect_time - sphere_time/2)
-                .to({opacity : 1}, 0)
-                .to({opacity:0}, sphere_time)
-                .wait(time - intersect_time - sphere_time/2);
-        }
+        animate_spheres(raygroup, raycaster, cubevw, cuben, 0x00FF06, time, speed, sphere_time, start);
 
-        const intersects_microball = raycaster.intersectObjects(traps);
-        intersects_microball.forEach(intersection => {
-            //TO DO: change timing of flash to be time of intersection with the ray
-            const trap_copy = new THREE.Mesh(intersection.object.geometry, new THREE.MeshLambertMaterial(0x002FFF));
-            raygroup.add(trap_copy);
-            trap_copy.material.color.set(0xffff00);
-            trap_copy.material.transparent = true;
-            trap_copy.material.opacity = 0;
-            trap_copy.position.set(intersection.object.position.x, intersection.object.position.y, intersection.object.position.z);
-            trap_copy.rotation.x = intersection.object.rotation.x;
-            trap_copy.rotation.y = intersection.object.rotation.y;
-            trap_copy.rotation.z = intersection.object.rotation.z;
-            const wait_time = intersection.distance/speed;
-            createjs.Tween.get(trap_copy.material, {loop: true})
-                .wait(wait_time)
-                .to({opacity : 1}, 0)
-                .wait(200)
-                .to({opacity : 0}, 0)
-                .wait(time - wait_time - 200);
-        });
-
+        animate_color_change(raygroup, raycaster, traps, 0xffff00, time, speed, sphere_time);
+        animate_color_change(raygroup, raycaster, veto_wall.children, 0xffff00, time, speed, sphere_time, start);
+        animate_color_change(raygroup, raycaster, neutron_wall.children, 0xffff00, time, speed, sphere_time);
         //animates rays to move to target
         createjs.Tween.get(ray.position, {loop: true}).to({x: target.x, y: target.y, z: target.z}, time);
     }
