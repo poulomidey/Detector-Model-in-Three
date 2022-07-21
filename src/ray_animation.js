@@ -75,25 +75,18 @@ function animate_spheres(raygroup, raycaster, cubevw, cuben, color, time, speed,
     }
 }
 
-function animate_color_change(raygroup, raycaster, children, color, time, speed, sphere_time, scale, start = 0)
+function animate_color_change(raygroup, raycaster, children, color, time, speed, sphere_time, wall, start = 0)
 {
-    const intersects_group = raycaster.intersectObjects(children);
-    //have to make the flashes line up with the 50% of spheres that don't show up.
-    //Will you keep both the spheres and the flashes?
-    intersects_group.forEach(intersection => {
-        if(start == 0)
-        {
+    if(start == 0)
+    {
+        const intersects_group = raycaster.intersectObjects(children);
+        //have to make the flashes line up with the 50% of spheres that don't show up.
+        //Will you keep both the spheres and the flashes?
+        intersects_group.forEach(intersection => {
             const copy = new THREE.Mesh(intersection.object.geometry, new THREE.MeshLambertMaterial(color));
-            if(scale)
-            {
-                copy.scale.set(1,1,1.1);
-            }
             raygroup.add(copy);
             copy.material.color.set(color);
-            copy.material.transparent = true;
-            copy.material.opacity = 0;
-            // copy.material.polygonOffset = true;
-            // copy.material.polygonOffsetFactor = -0.1;
+
             const world_pos = new THREE.Vector3();
             intersection.object.localToWorld( world_pos );
             copy.position.set(world_pos.x, world_pos.y, world_pos.z);
@@ -101,15 +94,31 @@ function animate_color_change(raygroup, raycaster, children, color, time, speed,
             intersection.object.getWorldQuaternion(quaternion);
             copy.setRotationFromQuaternion(quaternion);
             const wait_time = intersection.distance/speed;
-            
-            createjs.Tween.get(copy.material, {loop: true})
-                .wait(wait_time - sphere_time/2)
-                .to({opacity : 1}, 0)
-                .wait(sphere_time)
-                .to({opacity : 0}, 0)
-                .wait(time - wait_time - sphere_time/2);
-        }
-    });
+
+            if(wall)
+            {
+                copy.scale.set(0,0,0);
+                createjs.Tween.get(copy.scale, {loop: true})
+                    .wait(wait_time - sphere_time/2)
+                    .to({x : 1, y : 1, z : 1}, 0)
+                    .wait(sphere_time)
+                    .to({x : 0, y : 0, z : 0}, 0)
+                    .wait(time - wait_time - sphere_time/2);
+            }
+            else
+            {
+                copy.material.transparent = true;
+                copy.material.opacity = 0;
+
+                createjs.Tween.get(copy.material, {loop: true})
+                    .wait(wait_time - sphere_time/2)
+                    .to({opacity : 1}, 0)
+                    .wait(sphere_time)
+                    .to({opacity : 0}, 0)
+                    .wait(time - wait_time - sphere_time/2);
+            }
+        });
+    }
 }
 
 export function animations(raygroup, veto_wall, neutron_wall, microball, vwdimensions, ndimensions, rot, num_of_rays, cubevw, cuben)
