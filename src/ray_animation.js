@@ -65,17 +65,17 @@ function animate_spheres(raygroup, raycaster, cubevw, cuben, color, time, speed,
         sphere.material.transparent = true;
         sphere.material.opacity = 0;
         
-        const intersect_time =intersections[i].distance/speed;
+        const wait_time =intersections[i].distance/speed;
 
         createjs.Tween.get(sphere.material, {loop: true})
-            .wait(intersect_time - sphere_time/2)
+            .wait(wait_time - sphere_time/2)
             .to({opacity : 1}, 0)
             .to({opacity:0}, sphere_time)
-            .wait(time - intersect_time - sphere_time/2);
+            .wait(time - wait_time - sphere_time/2);
     }
 }
 
-function animate_color_change(raygroup, raycaster, children, color, time, speed, sphere_time, start = 0)
+function animate_color_change(raygroup, raycaster, children, color, time, speed, sphere_time, scale, start = 0)
 {
     const intersects_group = raycaster.intersectObjects(children);
     //have to make the flashes line up with the 50% of spheres that don't show up.
@@ -84,17 +84,22 @@ function animate_color_change(raygroup, raycaster, children, color, time, speed,
         if(start == 0)
         {
             const copy = new THREE.Mesh(intersection.object.geometry, new THREE.MeshLambertMaterial(color));
+            if(scale)
+            {
+                copy.scale.set(1,1,1.1);
+            }
             raygroup.add(copy);
             copy.material.color.set(color);
             copy.material.transparent = true;
             copy.material.opacity = 0;
+            // copy.material.polygonOffset = true;
+            // copy.material.polygonOffsetFactor = -0.1;
             const world_pos = new THREE.Vector3();
             intersection.object.localToWorld( world_pos );
             copy.position.set(world_pos.x, world_pos.y, world_pos.z);
             const quaternion = new THREE.Quaternion();
             intersection.object.getWorldQuaternion(quaternion);
             copy.setRotationFromQuaternion(quaternion);
-            console.log(intersection.object.rotation.x, intersection.object.rotation.y, intersection.object.rotation.z);
             const wait_time = intersection.distance/speed;
             
             createjs.Tween.get(copy.material, {loop: true})
@@ -132,9 +137,9 @@ export function animations(raygroup, veto_wall, neutron_wall, microball, vwdimen
 
         animate_spheres(raygroup, raycaster, cubevw, cuben, 0x00FF06, time, speed, sphere_time, start);
 
-        animate_color_change(raygroup, raycaster, traps, 0xffff00, time, speed, sphere_time);
-        animate_color_change(raygroup, raycaster, veto_wall.children, 0xffff00, time, speed, sphere_time, start);
-        animate_color_change(raygroup, raycaster, neutron_wall.children, 0xffff00, time, speed, sphere_time);
+        animate_color_change(raygroup, raycaster, traps, 0xffff00, time, speed, sphere_time, false);
+        animate_color_change(raygroup, raycaster, veto_wall.children, 0xffff00, time, speed, sphere_time, true, start);
+        animate_color_change(raygroup, raycaster, neutron_wall.children, 0xffff00, time, speed, sphere_time, true);
         //animates rays to move to target
         createjs.Tween.get(ray.position, {loop: true}).to({x: target.x, y: target.y, z: target.z}, time);
     }
